@@ -1,4 +1,4 @@
-import { createClient } from "@/lib/supabase/server";
+import { createClient, isSupabaseConfigured } from "@/lib/supabase/server";
 
 const TIERS = [
   {
@@ -16,9 +16,13 @@ const TIERS = [
 ];
 
 export default async function PricingPage() {
-  const supabase = await createClient();
-  const { data } = await supabase.auth.getUser();
-  const user = data.user;
+  // Supabase isn't configured yet — render the page as if logged out instead of 500ing.
+  let user = null;
+  if (isSupabaseConfigured()) {
+    const supabase = await createClient();
+    const { data } = await supabase.auth.getUser();
+    user = data.user;
+  }
 
   return (
     <main className="flex min-h-screen flex-col items-center gap-10 bg-zinc-50 px-6 py-24 dark:bg-black">
